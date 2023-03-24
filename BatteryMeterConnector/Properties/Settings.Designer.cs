@@ -58,5 +58,17 @@ namespace BatteryMeterConnector.Properties {
                 this["BatteryMeterWriteTimeout"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("5000")]
+        public int StatusResetDelay {
+            get {
+                return ((int)(this["StatusResetDelay"]));
+            }
+            set {
+                this["StatusResetDelay"] = value;
+            }
+        }
     }
 }

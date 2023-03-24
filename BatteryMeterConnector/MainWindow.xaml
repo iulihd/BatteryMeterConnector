@@ -5,12 +5,15 @@
                  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                  xmlns:local="clr-namespace:BatteryMeterConnector"
                  xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+                 xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
                  xmlns:vm="clr-namespace:BatteryMeterConnector.ViewModels"
                  xmlns:properties="clr-namespace:BatteryMeterConnector.Properties"
+                 xmlns:converters="clr-namespace:BatteryMeterConnector.Helpers.Converters"
                  mc:Ignorable="d"
                  BorderThickness="0"
                  Title="Battery Meter Connector"
                  Height="800" Width="1000"
+                 MinWidth="800" MinHeight="800"
                  WindowTransitionsEnabled="False">
 
     <mah:MetroWindow.Resources>
@@ -19,8 +22,12 @@
         <Style TargetType="Button" BasedOn="{StaticResource MahApps.Styles.Button.Flat}">
             <Setter Property="FontSize" Value="20"/>
             <Setter Property="mah:ControlsHelper.CornerRadius" Value="10"/>
-            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Margin" Value="5,0"/>
+            <Setter Property="VerticalAlignment" Value="Bottom"/>
         </Style>
+
+        <converters:BooleanToTextConverter x:Key="BooleanToTextConverter"/>
+        <converters:BooleanToKindConverter x:Key="BooleanToKindConverter"/>
     </mah:MetroWindow.Resources>
 
     <mah:MetroWindow.TitleTemplate>
@@ -39,17 +46,13 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="30"/>
 
         </Grid.RowDefinitions>
 
-        <Grid Grid.Row="0" Margin="25">
+        <Grid Grid.Row="0" Margin="20">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
@@ -57,7 +60,13 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <mah:MetroHeader Grid.Column="0" VerticalAlignment="Center" Margin="5,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="10"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <mah:MetroHeader Grid.Column="0" VerticalAlignment="Bottom" Margin="5,0">
                 <mah:MetroHeader.Header>
                     <TextBlock Text="COM Port" FontSize="18" Margin="0,2"/>
                 </mah:MetroHeader.Header>
@@ -65,47 +74,91 @@
                       ItemsSource="{Binding AvailablePorts}" SelectedValue="{Binding SelectedPortCOM}"
                       mah:ControlsHelper.CornerRadius="5" BorderThickness="2" FontSize="18">
                     <ComboBox.ItemContainerStyle>
-                        <Style TargetType="{x:Type ComboBoxItem}">
+                        <Style TargetType="{x:Type ComboBoxItem}" BasedOn="{StaticResource MahApps.Styles.ComboBoxItem}">
                             <Setter Property="FontSize" Value="18"/>
                         </Style>
                     </ComboBox.ItemContainerStyle>
                 </ComboBox>
             </mah:MetroHeader>
 
-            <Button Grid.Column="1" Content="REFRESH"></Button>
+            <Button Grid.Column="1" Command="{Binding RefreshCommand}">
+                <Button.Content>
+                    <StackPanel Orientation="Horizontal">
+                        <iconPacks:PackIconMaterial Kind="Refresh" VerticalAlignment="Center" Margin="5,0"/>
+                        <TextBlock Text="REFRESH" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button.Content>
+            </Button>
 
-            <Button Grid.Column="2" Content="CONNECT"></Button>
-            <Button Grid.Column="3" Content="DISCONNECT"></Button>
+            <Button Grid.Column="2" Command="{Binding ConnectCommand}">
+                <Button.Content>
+                    <StackPanel Orientation="Horizontal">
+                        <iconPacks:PackIconMaterial Kind="LinkVariant" VerticalAlignment="Center" Margin="5,0"/>
+                        <TextBlock Text="CONNECT" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button.Content>
+            </Button>
+                
+            <Button Grid.Column="3" Command="{Binding DisconnectCommand}">
+                <Button.Content>
+                    <StackPanel Orientation="Horizontal">
+                        <iconPacks:PackIconMaterial Kind="LinkVariantOff" VerticalAlignment="Center" Margin="5,0"/>
+                        <TextBlock Text="DISCONNECT" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button.Content>
+            </Button>
+
+            <mah:MetroHeader Grid.Row="2" Grid.Column="1" VerticalAlignment="Bottom" Margin="5,0">
+                <mah:MetroHeader.Header>
+                    <TextBlock Text="Baud rate [bps]" FontSize="18" Margin="0,2"/>
+                </mah:MetroHeader.Header>
+                <TextBox x:Name="BaudRateTextBox"  BorderThickness="2" mah:ControlsHelper.CornerRadius="5" Style="{StaticResource MahApps.Styles.TextBox}" mah:TextBoxHelper.ClearTextButton="True" VerticalAlignment="Center" Text="{Binding Path=Baudrate, Mode=TwoWay, Delay=500}" FontSize="16"></TextBox>
+            </mah:MetroHeader>
+
+            <mah:MetroHeader Grid.Row="2" Grid.Column="2" VerticalAlignment="Center" Margin="5,0">
+                <mah:MetroHeader.Header>
+                    <TextBlock Text="Read Timeout [ms]" FontSize="18" Margin="0,2"/>
+                </mah:MetroHeader.Header>
+                <TextBox x:Name="ReadTimeOutTextBox"  BorderThickness="2" mah:ControlsHelper.CornerRadius="5" Style="{StaticResource MahApps.Styles.TextBox}" mah:TextBoxHelper.ClearTextButton="True" VerticalAlignment="Center" Text="{Binding Path=BatteryMeterReadTimeout, Source={x:Static properties:Settings.Default}, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" FontSize="16"></TextBox>
+            </mah:MetroHeader>
+
+
+            <mah:MetroHeader Grid.Row="2" Grid.Column="3" VerticalAlignment="Center" Margin="5,0">
+                <mah:MetroHeader.Header>
+                    <TextBlock Text="Write Timeout [ms]" FontSize="18" Margin="0,2"/>
+                </mah:MetroHeader.Header>
+                <TextBox x:Name="WriteTimeOutTextBox"  BorderThickness="2" mah:ControlsHelper.CornerRadius="5" Style="{StaticResource MahApps.Styles.TextBox}" mah:TextBoxHelper.ClearTextButton="True" VerticalAlignment="Center" Text="{Binding Path=BatteryMeterWriteTimeout, Source={x:Static properties:Settings.Default}, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" FontSize="16"></TextBox>
+            </mah:MetroHeader>
 
         </Grid>
 
+        <StackPanel Grid.Row="1">
 
-        <mah:MetroHeader Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" >
-            <mah:MetroHeader.Header>
-                <TextBlock Text="Baud rate" FontSize="18" Margin="0,2"/>
-            </mah:MetroHeader.Header>
-            <TextBox x:Name="BaudRateTextBox"  BorderThickness="2" mah:ControlsHelper.CornerRadius="5" Style="{StaticResource MahApps.Styles.TextBox}" mah:TextBoxHelper.ClearTextButton="True" VerticalAlignment="Center" Text="{Binding Path=Baudrate, Mode=TwoWay, Delay=500}" FontSize="16"></TextBox>
-        </mah:MetroHeader>
+            <StackPanel Orientation="Horizontal">
+                
+            </StackPanel>
 
-        <mah:MetroHeader Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" >
-            <mah:MetroHeader.Header>
-                <TextBlock Text="Read Timeout" FontSize="18" Margin="0,2"/>
-            </mah:MetroHeader.Header>
-            <TextBox x:Name="ReadTimeOutTextBox"  BorderThickness="2" mah:ControlsHelper.CornerRadius="5" Style="{StaticResource MahApps.Styles.TextBox}" mah:TextBoxHelper.ClearTextButton="True" VerticalAlignment="Center" Text="{Binding Path=BatteryMeterReadTimeout, Source={x:Static properties:Settings.Default}, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" FontSize="16"></TextBox>
-        </mah:MetroHeader>
+        </StackPanel>
+        
 
 
-        <mah:MetroHeader Grid.Row="3" Grid.Column="0" VerticalAlignment="Center" >
-            <mah:MetroHeader.Header>
-                <TextBlock Text="Write Timeout" FontSize="18" Margin="0,2"/>
-            </mah:MetroHeader.Header>
-            <TextBox x:Name="WriteTimeOutTextBox"  BorderThickness="2" mah:ControlsHelper.CornerRadius="5" Style="{StaticResource MahApps.Styles.TextBox}" mah:TextBoxHelper.ClearTextButton="True" VerticalAlignment="Center" Text="{Binding Path=BatteryMeterWriteTimeout, Source={x:Static properties:Settings.Default}, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" FontSize="16"></TextBox>
-        </mah:MetroHeader>
+        <Grid Grid.Row="2" Grid.ColumnSpan="3" Background="{StaticResource MahApps.Brushes.Accent}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto" MinWidth="250"/>
+            </Grid.ColumnDefinitions>
 
+            <StackPanel Grid.Column="0" Orientation="Horizontal">
+                <TextBlock Text="{Binding LastMessageTimeStamp}" VerticalAlignment="Center" Foreground="White" Margin="5,0" FontSize="17" TextWrapping="NoWrap"/>
+                <TextBlock Text="{Binding Status}" VerticalAlignment="Center" Foreground="White" Margin="5,0" FontSize="17"/>
+            </StackPanel>
 
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Visibility="{Binding PortStatusVisibility}" HorizontalAlignment="Right">
+                <iconPacks:PackIconMaterial Kind="{Binding Path=BatteryMeterCommunication.IsConnected, Converter={StaticResource BooleanToKindConverter},Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" Foreground="White" Margin="10,0,5,0"/>
+                <TextBlock Text="{Binding Path=SelectedPortCOM}" VerticalAlignment="Center" Foreground="White" FontSize="18"/>
+                <TextBlock Text="{Binding Path=BatteryMeterCommunication.IsConnected, Converter={StaticResource BooleanToTextConverter},Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" Foreground="White" FontSize="18" Margin="5,0,10,0"/>
+            </StackPanel>
 
-        <Grid Grid.Row="6" Grid.ColumnSpan="3" Background="{StaticResource MahApps.Brushes.Accent}">
-            
         </Grid>
 
     </Grid>
