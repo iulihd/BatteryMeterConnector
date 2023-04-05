@@ -12,6 +12,9 @@ namespace BatteryMeterConnector.Helpers
     {
         private static readonly Logger errorLog = LogManager.GetCurrentClassLogger();
 
+        public delegate void IsConnectedChangedEventHandler(bool isConnected);
+        public event IsConnectedChangedEventHandler IsConnectedChangedEvent;
+
         private SerialPort serialPortConnection;
         public SerialPort SerialPortConnection
         {
@@ -28,6 +31,7 @@ namespace BatteryMeterConnector.Helpers
             get { return isConnected; }
             set
             {
+                IsConnectedChangedEvent(value);
                 OnPropertyChanged(ref isConnected, value);
             }
         }
@@ -102,12 +106,13 @@ namespace BatteryMeterConnector.Helpers
             }
             catch (Exception ex)
             {
-               errorLog.Error(ex);
+                IsConnectedTester(ex);
+                errorLog.Error(ex);
                 return returnMe;
             }
         }
 
-        public int GetBatteryStatus()
+        public int GetIsChargingStatus()
         {
             int returnMe = 0;
             try
@@ -123,10 +128,184 @@ namespace BatteryMeterConnector.Helpers
             }
             catch (Exception ex)
             {
+                IsConnectedTester(ex);
                 errorLog.Error(ex);
                 return returnMe;
             }
         }
+
+        public int GetIsDischargingStatus()
+        {
+            int returnMe = 0;
+            try
+            {
+                string command = "isDischarging";
+                SerialPortConnection.WriteLine(command);
+                string resp = SerialPortConnection.ReadLine();
+                if (!string.IsNullOrEmpty(resp))
+                {
+                    returnMe = int.Parse(resp.Substring(resp.IndexOf('=') + 1).Trim());
+                }
+                return returnMe;
+            }
+            catch (Exception ex)
+            {
+                IsConnectedTester(ex);
+                errorLog.Error(ex);
+                return returnMe;
+            }
+        }
+
+        public int GetMaxBatteryCapacity()
+        {
+            int returnMe = 0;
+            try
+            {
+                string command = "maxBatteryCapacity";
+                SerialPortConnection.WriteLine(command);
+                string resp = SerialPortConnection.ReadLine();
+                if (!string.IsNullOrEmpty(resp))
+                {
+                    returnMe = int.Parse(resp.Substring(resp.IndexOf('=') + 1).Trim());
+                }
+                return returnMe;
+            }
+            catch (Exception ex)
+            {
+                errorLog.Error(ex);
+                return returnMe;
+            }
+        }
+
+        public string SetMaxBatteryCapacity(int newMaxBatteryCapacity)
+        {
+            string returnMe = string.Empty;
+            try
+            {
+                string command = $"maxBatteryCapacity={newMaxBatteryCapacity}";
+                SerialPortConnection.WriteLine(command);
+                string resp = SerialPortConnection.ReadLine();
+                if (!string.IsNullOrEmpty(resp))
+                {
+                    returnMe = resp;
+                }
+                return returnMe;
+            }
+            catch (Exception ex)
+            {
+                errorLog.Error(ex);
+                return returnMe;
+            }
+        }
+
+        public int GetSleepTimer()
+        {
+            int returnMe = 0;
+            try
+            {
+                string command = "sleepTimer";
+                SerialPortConnection.WriteLine(command);
+                string resp = SerialPortConnection.ReadLine();
+                if (!string.IsNullOrEmpty(resp))
+                {
+                    returnMe = int.Parse(resp.Substring(resp.IndexOf('=') + 1).Trim());
+                }
+                return returnMe;
+            }
+            catch (Exception ex)
+            {
+                IsConnectedTester(ex);
+                errorLog.Error(ex);
+                return returnMe;
+            }
+        }
+
+        public void SetSleepTimer(int newBatterySleepTimer)
+        {
+            try
+            {
+                string command = $"sleepTimer={newBatterySleepTimer}";
+                SerialPortConnection.WriteLine(command);
+                string resp = SerialPortConnection.ReadLine();
+            }
+            catch (Exception ex)
+            {
+                errorLog.Error(ex);
+            }
+        }
+
+        public int GetButtonCooldown()
+        {
+            int returnMe = 0;
+            try
+            {
+                string command = "buttonCooldown";
+                SerialPortConnection.WriteLine(command);
+                string resp = SerialPortConnection.ReadLine();
+                if (!string.IsNullOrEmpty(resp))
+                {
+                    returnMe = int.Parse(resp.Substring(resp.IndexOf('=') + 1).Trim());
+                }
+                return returnMe;
+            }
+            catch (Exception ex)
+            {
+                IsConnectedTester(ex);
+                errorLog.Error(ex);
+                return returnMe;
+            }
+        }
+
+        public void SetButtonCooldown(int newBatteryButtonCooldown)
+        {
+            try
+            {
+                string command = $"buttonCooldown={newBatteryButtonCooldown}";
+                SerialPortConnection.WriteLine(command);
+                string resp = SerialPortConnection.ReadLine();
+            }
+            catch (Exception ex)
+            {
+                errorLog.Error(ex);
+            }
+        }
+
+        public int GetScreenBrightness()
+        {
+            int returnMe = 0;
+            try
+            {
+                string command = "screenBrightness";
+                SerialPortConnection.WriteLine(command);
+                string resp = SerialPortConnection.ReadLine();
+                if (!string.IsNullOrEmpty(resp))
+                {
+                    returnMe = int.Parse(resp.Substring(resp.IndexOf('=') + 1).Trim());
+                }
+                return returnMe;
+            }
+            catch (Exception ex)
+            {
+                IsConnectedTester(ex);
+                errorLog.Error(ex);
+                return returnMe;
+            }
+        }
+
+        public void SetScreenBrightness(int newBatteryScreenBrightness)
+        {
+            try
+            {
+                string command = $"screenBrightness={newBatteryScreenBrightness}";
+                SerialPortConnection.WriteLine(command);
+                string resp = SerialPortConnection.ReadLine();
+            }
+            catch (Exception ex)
+            {
+                errorLog.Error(ex);
+            }
+        }
+
 
         public string OpenPort()
         {
@@ -173,6 +352,14 @@ namespace BatteryMeterConnector.Helpers
                 IsConnected = false;
                 errorLog.Error(ex);
                 return ex.Message;
+            }
+        }
+
+        public void IsConnectedTester(Exception ex)
+        {
+            if(ex.Message == "The port is closed.")
+            {
+                IsConnected = false;
             }
         }
 

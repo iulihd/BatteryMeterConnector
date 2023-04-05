@@ -24,10 +24,23 @@
             <Setter Property="mah:ControlsHelper.CornerRadius" Value="10"/>
             <Setter Property="Margin" Value="5,0"/>
             <Setter Property="VerticalAlignment" Value="Bottom"/>
+            <Setter Property="FontWeight" Value="DemiBold"/>
+        </Style>
+
+        <Style TargetType="TextBlock">
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="Margin" Value="5,0"/>
+            <Setter Property="VerticalAlignment" Value="Bottom"/>
+        </Style>
+
+        <Style TargetType="Separator">
+            <Setter Property="Margin" Value="0,5"/>
         </Style>
 
         <converters:BooleanToTextConverter x:Key="BooleanToTextConverter"/>
         <converters:BooleanToKindConverter x:Key="BooleanToKindConverter"/>
+        <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" TrueValue="Visible" FalseValue="Collapsed"/>
+        <converters:BooleanToVisibilityConverter x:Key="InverseBooleanToVisibilityConverter" TrueValue="Collapsed" FalseValue="Visible"/>
     </mah:MetroWindow.Resources>
 
     <mah:MetroWindow.TitleTemplate>
@@ -66,7 +79,7 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <mah:MetroHeader Grid.Column="0" VerticalAlignment="Bottom" Margin="5,0">
+            <mah:MetroHeader Grid.Column="0" VerticalAlignment="Bottom" Margin="5,0" Visibility="{Binding Path=ManualPortSelection, Source={x:Static properties:Settings.Default}, UpdateSourceTrigger=PropertyChanged,Converter={StaticResource InverseBooleanToVisibilityConverter}}">
                 <mah:MetroHeader.Header>
                     <TextBlock Text="COM Port" FontSize="18" Margin="0,2"/>
                 </mah:MetroHeader.Header>
@@ -79,6 +92,16 @@
                         </Style>
                     </ComboBox.ItemContainerStyle>
                 </ComboBox>
+            </mah:MetroHeader>
+
+            <mah:MetroHeader Grid.Column="0" Grid.Row="0" VerticalAlignment="Bottom" Margin="5,0" Visibility="{Binding Path=ManualPortSelection, Source={x:Static properties:Settings.Default}, UpdateSourceTrigger=PropertyChanged,Converter={StaticResource BooleanToVisibilityConverter}}">
+                <mah:MetroHeader.Header>
+                    <TextBlock Text="COM Port" FontSize="18" Margin="0,2"/>
+                </mah:MetroHeader.Header>
+                <TextBox Style="{StaticResource MahApps.Styles.TextBox.Button}" 
+                      Text="{Binding SelectedPortCOM, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay,Delay=500}"
+                      mah:ControlsHelper.CornerRadius="5" BorderThickness="2" FontSize="18">
+                </TextBox>
             </mah:MetroHeader>
 
             <Button Grid.Column="1" Command="{Binding RefreshCommand}">
@@ -119,7 +142,7 @@
                 <mah:MetroHeader.Header>
                     <TextBlock Text="Read Timeout [ms]" FontSize="18" Margin="0,2"/>
                 </mah:MetroHeader.Header>
-                <TextBox x:Name="ReadTimeOutTextBox"  BorderThickness="2" mah:ControlsHelper.CornerRadius="5" Style="{StaticResource MahApps.Styles.TextBox}" mah:TextBoxHelper.ClearTextButton="True" VerticalAlignment="Center" Text="{Binding Path=BatteryMeterReadTimeout, Source={x:Static properties:Settings.Default}, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" FontSize="16"></TextBox>
+                <TextBox x:Name="ReadTimeOutTextBox"  BorderThickness="2" mah:ControlsHelper.CornerRadius="5" Style="{StaticResource MahApps.Styles.TextBox}" mah:TextBoxHelper.ClearTextButton="True" VerticalAlignment="Center" Text="{Binding Path=ReadTimeOut, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay,Delay=500}" FontSize="16"></TextBox>
             </mah:MetroHeader>
 
 
@@ -127,16 +150,92 @@
                 <mah:MetroHeader.Header>
                     <TextBlock Text="Write Timeout [ms]" FontSize="18" Margin="0,2"/>
                 </mah:MetroHeader.Header>
-                <TextBox x:Name="WriteTimeOutTextBox"  BorderThickness="2" mah:ControlsHelper.CornerRadius="5" Style="{StaticResource MahApps.Styles.TextBox}" mah:TextBoxHelper.ClearTextButton="True" VerticalAlignment="Center" Text="{Binding Path=BatteryMeterWriteTimeout, Source={x:Static properties:Settings.Default}, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" FontSize="16"></TextBox>
+                <TextBox x:Name="WriteTimeOutTextBox"  BorderThickness="2" mah:ControlsHelper.CornerRadius="5" Style="{StaticResource MahApps.Styles.TextBox}" mah:TextBoxHelper.ClearTextButton="True" VerticalAlignment="Center" Text="{Binding Path=WriteTimeOut, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, Delay=500}" FontSize="16"></TextBox>
             </mah:MetroHeader>
 
+            
         </Grid>
 
-        <StackPanel Grid.Row="1">
+        <StackPanel Grid.Row="1" Margin="20" Visibility="{Binding Path=BatteryMeterCommunication.IsConnected,Converter={StaticResource BooleanToVisibilityConverter}}">
 
-            <StackPanel Orientation="Horizontal">
-                
+            <StackPanel Orientation="Horizontal" Margin="0,5">
+                <TextBlock Text="Battery Percentage: "/>
+                <TextBlock Text="{Binding BatteryPercent, StringFormat={}{0}%}" FontWeight="DemiBold" Margin="0,0,15,0"/>
+                <TextBlock Text="IsCharging: "/>
+                <TextBlock Text="{Binding BatteryIsCharging}" FontWeight="DemiBold" Margin="0,0,15,0"/>
+                <TextBlock Text="IsDischarging: "/>
+                <TextBlock Text="{Binding BatteryIsDischarging}" FontWeight="DemiBold"/>
             </StackPanel>
+
+            <Separator/>
+
+            <StackPanel Orientation="Horizontal" Margin="0,5">
+                <TextBlock Text="Battery Max Capacity [Ah]: " VerticalAlignment="Bottom"/>
+                <TextBlock Text="{Binding BatteryMaxCapacity}" FontWeight="DemiBold" Margin="0,0,15,0" VerticalAlignment="Bottom"/>
+                <TextBlock Text="New Battery Max Capacity [Ah]: " VerticalAlignment="Bottom"/>
+                <TextBox Text="{Binding BatteryMaxCapacity}" FontSize="18" FontWeight="DemiBold" Margin="0,0,15,0" MinWidth="75" mah:ControlsHelper.CornerRadius="5" BorderThickness="2"/>
+                <Button Command="{Binding ApplyCommand}" CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag}" Tag="BatteryMaxCapacity">
+                    <Button.Content>
+                        <StackPanel Orientation="Horizontal">
+                            <iconPacks:PackIconMaterial Kind="CheckBold" Margin="5,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="APPLY"/>
+                        </StackPanel>
+                    </Button.Content>
+                </Button>
+            </StackPanel>
+
+            <Separator/>
+
+            <StackPanel Orientation="Horizontal" Margin="0,5">
+                <TextBlock Text="Sleep Timer [ms]: " VerticalAlignment="Bottom"/>
+                <TextBlock Text="{Binding BatterySleepTimer}" FontWeight="DemiBold" Margin="0,0,15,0" VerticalAlignment="Bottom"/>
+                <TextBlock Text="New Sleep Timer [ms]: " VerticalAlignment="Bottom"/>
+                <TextBox Text="{Binding NewBatterySleepTimer}" FontSize="18" FontWeight="DemiBold" Margin="0,0,15,0" MinWidth="75" mah:ControlsHelper.CornerRadius="5" BorderThickness="2"/>
+                <Button Command="{Binding ApplyCommand}" CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag}" Tag="SleepTimer">
+                    <Button.Content>
+                        <StackPanel Orientation="Horizontal">
+                            <iconPacks:PackIconMaterial Kind="CheckBold" Margin="5,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="APPLY"/>
+                        </StackPanel>
+                    </Button.Content>
+                </Button>
+            </StackPanel>
+
+            <Separator/>
+
+            <StackPanel Orientation="Horizontal" Margin="0,5">
+                <TextBlock Text="Button Cooldown [ms]: " VerticalAlignment="Bottom"/>
+                <TextBlock Text="{Binding BatteryButtonCooldown}" FontWeight="DemiBold" Margin="0,0,15,0" VerticalAlignment="Bottom"/>
+                <TextBlock Text="New Button Cooldown [ms]: " VerticalAlignment="Bottom"/>
+                <TextBox Text="{Binding NewBatteryButtonCooldown}" FontSize="18" FontWeight="DemiBold" Margin="0,0,15,0" MinWidth="75" mah:ControlsHelper.CornerRadius="5" BorderThickness="2"/>
+                <Button Command="{Binding ApplyCommand}" CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag}" Tag="ButtonCooldown">
+                    <Button.Content>
+                        <StackPanel Orientation="Horizontal">
+                            <iconPacks:PackIconMaterial Kind="CheckBold" Margin="5,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="APPLY"/>
+                        </StackPanel>
+                    </Button.Content>
+                </Button>
+            </StackPanel>
+
+            <Separator/>
+            
+            <StackPanel Orientation="Horizontal" Margin="0,5">
+                <TextBlock Text="Screen Brightness: " VerticalAlignment="Bottom"/>
+                <TextBlock Text="{Binding BatteryScreenBrightness}" FontWeight="DemiBold" Margin="0,0,15,0" VerticalAlignment="Bottom"/>
+                <TextBlock Text="New Screen Brightness: " VerticalAlignment="Bottom"/>
+                <TextBox Text="{Binding NewBatteryScreenBrightness}" FontSize="18" FontWeight="DemiBold" Margin="0,0,15,0" MinWidth="75" mah:ControlsHelper.CornerRadius="5" BorderThickness="2"/>
+                <Button Command="{Binding ApplyCommand}" CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag}" Tag="ScreenBrightness">
+                    <Button.Content>
+                        <StackPanel Orientation="Horizontal">
+                            <iconPacks:PackIconMaterial Kind="CheckBold" Margin="5,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="APPLY"/>
+                        </StackPanel>
+                    </Button.Content>
+                </Button>
+            </StackPanel>
+
+            <Separator/>
 
         </StackPanel>
         

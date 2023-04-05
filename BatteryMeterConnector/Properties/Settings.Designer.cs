@@ -70,5 +70,29 @@ namespace BatteryMeterConnector.Properties {
                 this["StatusResetDelay"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("2000")]
+        public int PollingInterval {
+            get {
+                return ((int)(this["PollingInterval"]));
+            }
+            set {
+                this["PollingInterval"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool ManualPortSelection {
+            get {
+                return ((bool)(this["ManualPortSelection"]));
+            }
+            set {
+                this["ManualPortSelection"] = value;
+            }
+        }
     }
 }
