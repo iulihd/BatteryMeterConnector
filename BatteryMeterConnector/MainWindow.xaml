@@ -170,9 +170,9 @@
             <Separator/>
 
             <StackPanel Orientation="Horizontal" Margin="0,5">
-                <TextBlock Text="Battery Max Capacity [Ah]: " VerticalAlignment="Bottom"/>
+                <TextBlock Text="Battery Max Capacity [uAh]: " VerticalAlignment="Bottom"/>
                 <TextBlock Text="{Binding BatteryMaxCapacity}" FontWeight="DemiBold" Margin="0,0,15,0" VerticalAlignment="Bottom"/>
-                <TextBlock Text="New Battery Max Capacity [Ah]: " VerticalAlignment="Bottom"/>
+                <TextBlock Text="New Battery Max Capacity [uAh]: " VerticalAlignment="Bottom"/>
                 <TextBox Text="{Binding BatteryMaxCapacity}" FontSize="18" FontWeight="DemiBold" Margin="0,0,15,0" MinWidth="75" mah:ControlsHelper.CornerRadius="5" BorderThickness="2"/>
                 <Button Command="{Binding ApplyCommand}" CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag}" Tag="BatteryMaxCapacity">
                     <Button.Content>
@@ -249,7 +249,7 @@
 
             <StackPanel Grid.Column="0" Orientation="Horizontal">
                 <TextBlock Text="{Binding LastMessageTimeStamp}" VerticalAlignment="Center" Foreground="White" Margin="5,0" FontSize="17" TextWrapping="NoWrap"/>
-                <TextBlock Text="{Binding Status}" VerticalAlignment="Center" Foreground="White" Margin="5,0" FontSize="17"/>
+                <TextBlock Text="{Binding Status}" VerticalAlignment="Center" Foreground="White" Margin="5,0" FontSize="17" TextWrapping="NoWrap"/>
             </StackPanel>
 
             <StackPanel Grid.Column="1" Orientation="Horizontal" Visibility="{Binding PortStatusVisibility}" HorizontalAlignment="Right">

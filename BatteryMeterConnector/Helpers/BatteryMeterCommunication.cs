@@ -156,9 +156,9 @@ namespace BatteryMeterConnector.Helpers
             }
         }
 
-        public int GetMaxBatteryCapacity()
+        public double GetMaxBatteryCapacity()
         {
-            int returnMe = 0;
+            double returnMe = 0;
             try
             {
                 string command = "maxBatteryCapacity";
@@ -166,7 +166,7 @@ namespace BatteryMeterConnector.Helpers
                 string resp = SerialPortConnection.ReadLine();
                 if (!string.IsNullOrEmpty(resp))
                 {
-                    returnMe = int.Parse(resp.Substring(resp.IndexOf('=') + 1).Trim());
+                    returnMe = double.Parse(resp.Substring(resp.IndexOf('=') + 1).Trim());
                 }
                 return returnMe;
             }
@@ -177,13 +177,14 @@ namespace BatteryMeterConnector.Helpers
             }
         }
 
-        public string SetMaxBatteryCapacity(int newMaxBatteryCapacity)
+        public string SetMaxBatteryCapacity(double newMaxBatteryCapacity)
         {
             string returnMe = string.Empty;
             try
             {
-                string command = $"maxBatteryCapacity={newMaxBatteryCapacity}";
+                string command = $"maxBatteryCapacity=";
                 SerialPortConnection.WriteLine(command);
+                SerialPortConnection.WriteLine($"{newMaxBatteryCapacity}");
                 string resp = SerialPortConnection.ReadLine();
                 if (!string.IsNullOrEmpty(resp))
                 {
@@ -226,6 +227,7 @@ namespace BatteryMeterConnector.Helpers
             {
                 string command = $"sleepTimer={newBatterySleepTimer}";
                 SerialPortConnection.WriteLine(command);
+                SerialPortConnection.WriteLine($"{newBatterySleepTimer}");
                 string resp = SerialPortConnection.ReadLine();
             }
             catch (Exception ex)
@@ -260,8 +262,9 @@ namespace BatteryMeterConnector.Helpers
         {
             try
             {
-                string command = $"buttonCooldown={newBatteryButtonCooldown}";
+                string command = $"buttonCooldown=";
                 SerialPortConnection.WriteLine(command);
+                serialPortConnection.WriteLine($"{newBatteryButtonCooldown}");
                 string resp = SerialPortConnection.ReadLine();
             }
             catch (Exception ex)
@@ -296,8 +299,9 @@ namespace BatteryMeterConnector.Helpers
         {
             try
             {
-                string command = $"screenBrightness={newBatteryScreenBrightness}";
+                string command = $"screenBrightness=";
                 SerialPortConnection.WriteLine(command);
+                SerialPortConnection.WriteLine($"{newBatteryScreenBrightness}");
                 string resp = SerialPortConnection.ReadLine();
             }
             catch (Exception ex)

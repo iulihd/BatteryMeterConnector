@@ -7,9 +7,14 @@
     <UseWPF>true</UseWPF>
     <StartupObject>BatteryMeterConnector.App</StartupObject>
     <Company>Iulian Maftei</Company>
-    <AssemblyVersion>1.0.0.3</AssemblyVersion>
-    <FileVersion>1.0.0.3</FileVersion>
+    <AssemblyVersion>1.0.0.4</AssemblyVersion>
+    <FileVersion>1.0.0.4</FileVersion>
+    <ApplicationIcon>batteryBlue.ico</ApplicationIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="batteryBlue.ico" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="MahApps.Metro" Version="2.4.9" />

@@ -53,8 +53,8 @@ namespace BatteryMeterConnector.ViewModels
         }
 
 
-        private int batteryMaxCapacity = 0;
-        public int BatteryMaxCapacity
+        private double batteryMaxCapacity = 0;
+        public double BatteryMaxCapacity
         {
             get { return batteryMaxCapacity; }
             set
@@ -64,8 +64,8 @@ namespace BatteryMeterConnector.ViewModels
             }
         }
 
-        private int newBatteryMaxCapacity = 0;
-        public int NewBatteryMaxCapacity
+        private double newBatteryMaxCapacity = 0;
+        public double NewBatteryMaxCapacity
         {
             get { return newBatteryMaxCapacity; }
             set
